@@ -1,6 +1,9 @@
 package com.jwt.example.JwtExample.services;
 
-import com.jwt.example.JwtExample.models.User;
+import com.jwt.example.JwtExample.entities.User;
+import com.jwt.example.JwtExample.repositories.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -10,16 +13,40 @@ import java.util.UUID;
 @Service
 public class UserService {
 
-    private List<User> store = new ArrayList<>();
+    @Autowired
+    private UserRepository userRepository;
 
-    public UserService() {
-        store.add(new User(UUID.randomUUID().toString(),"Nikhil Dutt","nikhildutt111@gmail.com"));
-        store.add(new User(UUID.randomUUID().toString(),"Hello World","hello@gmail.com"));
-        store.add(new User(UUID.randomUUID().toString(),"Prashant Bhushan","prashant@gmail.com"));
-        store.add(new User(UUID.randomUUID().toString(),"Piyush Beta","piyush@gmail.com"));
-    }
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     public List<User> getUsers(){
-        return this.store;
+        return userRepository.findAll();
 
     }
+    public User createUser(User user){
+        user.setUserId(UUID.randomUUID().toString());
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        return userRepository.save(user);
+    }
+    @Autowired
+    public UserService(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    public boolean existsByEmail(String email) {
+        return userRepository.existsByEmail(email);
+    }
+
+    public boolean existsByNumber(String number) {
+        return userRepository.existsByNumber(number);
+    }
+
+    public User getUsersByEmail(String email) {
+        return userRepository.getUsersByEmail(email);
+    }
+
+    public User getUsersByNumber(String number) {
+        return userRepository.getUsersByNumber(number);
+    }
+
 }
